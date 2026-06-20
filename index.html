@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OffPath — Hidden Spots Worth Finding</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+  :root {
+    --ink: #1a1a18;
+    --paper: #f7f4ef;
+    --moss: #3d5a38;
+    --rust: #c1440e;
+    --sand: #d4b896;
+    --mist: #8fa89a;
+    --glow: #e8d5a3;
+    --panel: #f0ece4;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--ink);
+    color: var(--paper);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px;
+    background: rgba(26,26,24,0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--glow);
+    letter-spacing: -0.02em;
+  }
+  .logo span { color: var(--rust); font-style: normal; }
+
+  nav { display: flex; gap: 28px; align-items: center; }
+  nav a {
+    color: var(--mist); font-size: 0.8rem; letter-spacing: 0.12em;
+    text-transform: uppercase; text-decoration: none; transition: color 0.2s;
+  }
+  nav a:hover { color: var(--glow); }
+
+  .btn-primary {
+    background: var(--rust); color: #fff;
+    border: none; padding: 9px 20px; border-radius: 2px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #d94f15; }
+
+  /* ── HERO ── */
+  .hero {
+    height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 32px 72px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 60% 40%, rgba(61,90,56,0.35) 0%, transparent 60%),
+      radial-gradient(ellipse at 20% 80%, rgba(193,68,14,0.2) 0%, transparent 50%),
+      linear-gradient(180deg, #0e1209 0%, #1a2015 60%, #0a0a08 100%);
+  }
+
+  /* Topographic SVG lines — the signature element */
+  .topo-lines {
+    position: absolute; inset: 0;
+    opacity: 0.18;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Cpath d='M0,300 Q200,200 400,280 T800,260' stroke='%238fa89a' stroke-width='1' fill='none'/%3E%3Cpath d='M0,320 Q200,220 400,300 T800,280' stroke='%238fa89a' stroke-width='1' fill='none'/%3E%3Cpath d='M0,340 Q200,240 400,320 T800,300' stroke='%238fa89a' stroke-width='1' fill='none'/%3E%3Cpath d='M0,360 Q200,260 400,340 T800,320' stroke='%238fa89a' stroke-width='1' fill='none'/%3E%3Cpath d='M0,380 Q200,280 400,360 T800,340' stroke='%238fa89a' stroke-width='1' fill='none'/%3E%3Cpath d='M0,400 Q200,300 400,380 T800,360' stroke='%238fa89a' stroke-width='1' fill='none'/%3E%3Cpath d='M50,200 Q250,120 450,200 T800,180' stroke='%238fa89a' stroke-width='0.7' fill='none'/%3E%3Cpath d='M50,220 Q250,140 450,220 T800,200' stroke='%238fa89a' stroke-width='0.7' fill='none'/%3E%3Cpath d='M50,240 Q250,160 450,240 T800,220' stroke='%238fa89a' stroke-width='0.7' fill='none'/%3E%3C/svg%3E");
+    background-size: cover;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--rust); margin-bottom: 16px;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    line-height: 1.05;
+    font-weight: 400;
+    color: var(--paper);
+    max-width: 700px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--glow);
+  }
+
+  .hero-sub {
+    color: var(--mist); font-size: 1rem; max-width: 440px;
+    line-height: 1.65; margin-bottom: 36px;
+  }
+
+  .hero-actions { display: flex; gap: 16px; align-items: center; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: var(--paper); padding: 9px 20px; border-radius: 2px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--glow); color: var(--glow); }
+
+  .scroll-hint {
+    position: absolute; bottom: 32px; right: 32px;
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--mist);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .scroll-line {
+    width: 40px; height: 1px; background: var(--mist);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%,100% { opacity: 0.4; width: 40px; }
+    50% { opacity: 1; width: 60px; }
+  }
+
+  /* ── MAP SECTION ── */
+  .map-section {
+    background: var(--paper);
+    color: var(--ink);
+    padding: 80px 0 0;
+  }
+
+  .section-header {
+    padding: 0 32px 48px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+
+  .section-label {
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--rust); margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+
+  .section-desc {
+    max-width: 340px; font-size: 0.9rem; color: #5a5a50; line-height: 1.7;
+  }
+
+  /* Map Container */
+  .map-wrap {
+    position: relative;
+    height: 540px;
+    background: #2a3a2e;
+    overflow: hidden;
+  }
+
+  /* SVG map base */
+  .map-svg {
+    width: 100%; height: 100%;
+    position: absolute; inset: 0;
+  }
+
+  /* Map pins */
+  .pin {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.2s;
+  }
+  .pin:hover { transform: translate(-50%, -100%) scale(1.15); }
+  .pin:hover .pin-dot { background: var(--rust); }
+
+  .pin-dot {
+    width: 14px; height: 14px;
+    background: var(--glow);
+    border-radius: 50%;
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 4px rgba(232,213,163,0.3);
+    transition: background 0.2s;
+    animation: pinPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes pinPulse {
+    0%,100% { box-shadow: 0 0 0 4px rgba(232,213,163,0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(232,213,163,0.1); }
+  }
+
+  .pin-stem {
+    width: 2px; height: 18px;
+    background: var(--glow);
+    margin: 0 auto;
+  }
+
+  .pin-label {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .pin:hover .pin-label { opacity: 1; }
+
+  /* Spot cards under map */
+  .spot-panel {
+    background: var(--panel);
+    padding: 40px 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .spot-card {
+    background: var(--paper);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+    position: relative;
+  }
+  .spot-card:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+  }
+
+  .spot-card.active {
+    border-color: var(--rust);
+    box-shadow: 0 0 0 2px var(--rust), 0 8px 32px rgba(0,0,0,0.12);
+  }
+
+  .card-thumb {
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-thumb-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Illustrated thumb placeholders using CSS */
+  .thumb-1 { background: linear-gradient(135deg, #2d4a2a 0%, #4a7a3d 40%, #8aaa6a 100%); }
+  .thumb-2 { background: linear-gradient(135deg, #1a2a3a 0%, #2a5a7a 50%, #5a9ab0 100%); }
+  .thumb-3 { background: linear-gradient(135deg, #3a2a1a 0%, #7a4a2a 50%, #c0885a 100%); }
+  .thumb-4 { background: linear-gradient(135deg, #2a2a3a 0%, #4a3a7a 50%, #8a7ab0 100%); }
+  .thumb-5 { background: linear-gradient(135deg, #1a3a2a 0%, #3a7a5a 50%, #7ab08a 100%); }
+  .thumb-6 { background: linear-gradient(135deg, #3a1a1a 0%, #7a3a2a 50%, #c08070 100%); }
+
+  .thumb-scene {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+    opacity: 0.7;
+  }
+
+  .card-badge {
+    position: absolute; top: 12px; left: 12px;
+    background: var(--rust);
+    color: #fff;
+    font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 1px;
+  }
+
+  .card-crowd {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(26,26,24,0.7);
+    color: var(--glow);
+    font-size: 0.65rem; padding: 3px 8px; border-radius: 1px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .card-body { padding: 18px 20px 22px; }
+
+  .card-region {
+    font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--mist); margin-bottom: 6px;
+  }
+
+  .card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem; font-weight: 700;
+    color: var(--ink); margin-bottom: 8px;
+    line-height: 1.25;
+  }
+
+  .card-desc {
+    font-size: 0.83rem; color: #5a5a50; line-height: 1.6; margin-bottom: 14px;
+  }
+
+  /* The "what most sites miss" insight block */
+  .insider-block {
+    background: #f5efe4;
+    border-left: 3px solid var(--rust);
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    border-radius: 0 2px 2px 0;
+  }
+  .insider-label {
+    font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--rust); margin-bottom: 4px; font-weight: 700;
+  }
+  .insider-text {
+    font-size: 0.78rem; color: #3a3a30; line-height: 1.55;
+  }
+
+  .card-meta {
+    display: flex; gap: 16px; align-items: center;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    padding-top: 12px;
+    margin-top: 4px;
+  }
+  .meta-item {
+    font-size: 0.72rem; color: var(--mist);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .meta-icon { font-size: 0.9rem; }
+
+  /* ── HOW IT WORKS ── */
+  .how-section {
+    background: var(--ink);
+    padding: 100px 32px;
+  }
+
+  .how-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    max-width: 1100px;
+    margin: 60px auto 0;
+    align-items: start;
+  }
+
+  .how-text { }
+
+  .step-list { display: flex; flex-direction: column; gap: 32px; }
+
+  .step {
+    display: flex; gap: 20px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .step:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem; font-weight: 700;
+    color: var(--moss); opacity: 0.5;
+    line-height: 1; min-width: 44px;
+  }
+  .step-content { }
+  .step-title {
+    font-size: 1rem; font-weight: 600; color: var(--paper);
+    margin-bottom: 6px;
+  }
+  .step-desc { font-size: 0.85rem; color: var(--mist); line-height: 1.65; }
+
+  .how-visual {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    padding: 32px;
+    height: 100%;
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Mini map in "how it works" */
+  .mini-map-pins {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(61,90,56,0.25) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 70%, rgba(193,68,14,0.15) 0%, transparent 50%),
+      linear-gradient(180deg, #0e1a10 0%, #1a2a1a 100%);
+  }
+
+  .floating-card {
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 3px;
+    padding: 14px 16px;
+    position: absolute;
+    width: 220px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    font-size: 0.8rem;
+  }
+  .fc-1 { top: 20px; left: 20px; }
+  .fc-2 { bottom: 50px; right: 20px; }
+
+  .fc-name { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+  .fc-tag { font-size: 0.65rem; color: var(--rust); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .fc-bar { height: 3px; background: linear-gradient(90deg, var(--moss), var(--glow)); border-radius: 2px; }
+
+  /* ── CATEGORIES ── */
+  .cat-section {
+    background: var(--paper);
+    color: var(--ink);
+    padding: 80px 32px;
+  }
+
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 48px;
+  }
+
+  .cat-tile {
+    background: var(--panel);
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 24px 20px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    text-align: center;
+  }
+  .cat-tile:hover, .cat-tile.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .cat-icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .cat-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+  .cat-count { font-size: 0.72rem; color: var(--mist); }
+  .cat-tile:hover .cat-count, .cat-tile.active .cat-count { color: rgba(255,255,255,0.5); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #0d0d0b;
+    padding: 48px 32px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 20px;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--glow);
+  }
+
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a {
+    font-size: 0.75rem; color: var(--mist); text-decoration: none;
+    letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--glow); }
+
+  .footer-copy { font-size: 0.72rem; color: #3a3a36; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,10,8,0.8);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 32px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 680px; width: 100%;
+    border-radius: 3px;
+    overflow: hidden;
+    transform: translateY(20px);
+    transition: transform 0.25s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-hero {
+    height: 240px;
+    position: relative;
+    display: flex; align-items: flex-end;
+    padding: 24px;
+  }
+
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: rgba(26,26,24,0.7); border: none;
+    color: var(--paper); width: 36px; height: 36px;
+    border-radius: 50%; font-size: 1.1rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .modal-close:hover { background: var(--ink); }
+
+  .modal-badge {
+    background: var(--rust); color: #fff;
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 1px;
+  }
+
+  .modal-body { padding: 28px 32px 36px; }
+
+  .modal-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem; font-weight: 700; margin-bottom: 6px;
+  }
+
+  .modal-region { font-size: 0.75rem; color: var(--mist); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px; }
+
+  .modal-desc { font-size: 0.9rem; line-height: 1.7; color: #3a3a30; margin-bottom: 20px; }
+
+  .modal-insider {
+    background: #f5efe4;
+    border-left: 3px solid var(--rust);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    border-radius: 0 3px 3px 0;
+  }
+  .modal-insider-label {
+    font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--rust); font-weight: 700; margin-bottom: 6px;
+  }
+  .modal-insider-text { font-size: 0.85rem; color: #3a3a30; line-height: 1.6; }
+
+  .modal-tips { margin-bottom: 24px; }
+  .modal-tips-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); margin-bottom: 10px; }
+  .tip-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 0.82rem; color: #5a5a50; line-height: 1.55;
+    margin-bottom: 8px;
+  }
+  .tip-icon { font-size: 0.9rem; margin-top: 1px; }
+
+  .modal-actions { display: flex; gap: 12px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 720px) {
+    header { padding: 14px 20px; }
+    nav { display: none; }
+    .hero { padding: 0 20px 60px; }
+    .section-header { flex-direction: column; align-items: flex-start; gap: 16px; padding: 0 20px 36px; }
+    .spot-panel { padding: 32px 20px; }
+    .how-grid { grid-template-columns: 1fr; gap: 48px; }
+    .how-visual { min-height: 300px; }
+    .cat-section { padding: 60px 20px; }
+    footer { flex-direction: column; align-items: flex-start; }
+    .modal-body { padding: 20px 20px 28px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Off<span>Path</span></div>
+  <nav>
+    <a href="#">Map</a>
+    <a href="#">Guides</a>
+    <a href="#">Hidden Gems</a>
+    <a href="#">Community</a>
+  </nav>
+  <button class="btn-primary">Add a Spot</button>
+</header>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="topo-lines"></div>
+
+  <p class="hero-eyebrow">Verified by locals, invisible to algorithms</p>
+  <h1 class="hero-title">The places <em>travel</em><br>guides forgot<br>to mention</h1>
+  <p class="hero-sub">Every spot on this map is curated by someone who actually lives nearby — with the one thing most sites skip: what you need to know <em>before</em> you arrive.</p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.querySelector('.map-section').scrollIntoView({behavior:'smooth'})">Explore the Map</button>
+    <button class="btn-ghost">How it works</button>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    Scroll to explore
+  </div>
+</section>
+
+<!-- ── MAP SECTION ── -->
+<section class="map-section">
+  <div class="section-header">
+    <div>
+      <p class="section-label">Interactive Guide</p>
+      <h2 class="section-title">Explore hidden spots<br>on the map</h2>
+    </div>
+    <p class="section-desc">Tap a pin to read the full guide, including the local insight most travel sites would never tell you.</p>
+  </div>
+
+  <div class="map-wrap" id="mapWrap">
+    <!-- SVG terrain map background -->
+    <svg class="map-svg" viewBox="0 0 1200 540" preserveAspectRatio="xMidYMid slice">
+      <!-- Base water -->
+      <rect width="1200" height="540" fill="#1a2f3a"/>
+
+      <!-- Landmasses -->
+      <ellipse cx="300" cy="270" rx="280" ry="200" fill="#2a3d2a" opacity="0.9"/>
+      <ellipse cx="750" cy="250" rx="350" ry="220" fill="#243322" opacity="0.85"/>
+      <ellipse cx="1050" cy="350" rx="180" ry="150" fill="#2a3d2a" opacity="0.8"/>
+      <ellipse cx="150" cy="450" rx="120" ry="80" fill="#243322" opacity="0.7"/>
+
+      <!-- Topo contour lines -->
+      <ellipse cx="300" cy="270" rx="220" ry="150" fill="none" stroke="#3a5a3a" stroke-width="1" opacity="0.5"/>
+      <ellipse cx="300" cy="270" rx="160" ry="100" fill="none" stroke="#3a5a3a" stroke-width="1" opacity="0.5"/>
+      <ellipse cx="300" cy="270" rx="100" ry="60" fill="none" stroke="#4a6a4a" stroke-width="1" opacity="0.6"/>
+      <ellipse cx="750" cy="250" rx="280" ry="170" fill="none" stroke="#3a5a3a" stroke-width="1" opacity="0.5"/>
+      <ellipse cx="750" cy="250" rx="200" ry="120" fill="none" stroke="#3a5a3a" stroke-width="1" opacity="0.5"/>
+      <ellipse cx="750" cy="250" rx="120" ry="70" fill="none" stroke="#4a6a4a" stroke-width="1" opacity="0.6"/>
+      <ellipse cx="1050" cy="350" rx="130" ry="100" fill="none" stroke="#3a5a3a" stroke-width="1" opacity="0.5"/>
+
+      <!-- Rivers/paths -->
+      <path d="M 280 180 Q 320 250 300 320 Q 280 390 310 430" stroke="#2a5a6a" stroke-width="2" fill="none" opacity="0.7"/>
+      <path d="M 600 200 Q 680 250 720 300 Q 760 350 820 360" stroke="#2a5a6a" stroke-width="2" fill="none" opacity="0.7"/>
+
+      <!-- Grid lines (like map grid) -->
+      <line x1="0" y1="180" x2="1200" y2="180" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="0" y1="360" x2="1200" y2="360" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="400" y1="0" x2="400" y2="540" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="800" y1="0" x2="800" y2="540" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+
+      <!-- Coordinate labels -->
+      <text x="10" y="175" font-family="Space Grotesk" font-size="10" fill="rgba(255,255,255,0.2)">48°N</text>
+      <text x="10" y="355" font-family="Space Grotesk" font-size="10" fill="rgba(255,255,255,0.2)">44°N</text>
+      <text x="395" y="530" font-family="Space Grotesk" font-size="10" fill="rgba(255,255,255,0.2)" text-anchor="middle">12°E</text>
+      <text x="795" y="530" font-family="Space Grotesk" font-size="10" fill="rgba(255,255,255,0.2)" text-anchor="middle">18°E</text>
+    </svg>
+
+    <!-- Pins -->
+    <div class="pin" style="left:25%; top:48%" onclick="openModal(0)" data-id="0">
+      <div class="pin-label">Monk's Gorge</div>
+      <div class="pin-dot"></div>
+      <div class="pin-stem"></div>
+    </div>
+    <div class="pin" style="left:42%; top:35%" onclick="openModal(1)" data-id="1">
+      <div class="pin-label">Mirror Lake</div>
+      <div class="pin-dot"></div>
+      <div class="pin-stem"></div>
+    </div>
+    <div class="pin" style="left:58%; top:55%" onclick="openModal(2)" data-id="2">
+      <div class="pin-label">The Salt Flats</div>
+      <div class="pin-dot"></div>
+      <div class="pin-stem"></div>
+    </div>
+    <div class="pin" style="left:72%; top:40%" onclick="openModal(3)" data-id="3">
+      <div class="pin-label">Shepherd's Pass</div>
+      <div class="pin-dot"></div>
+      <div class="pin-stem"></div>
+    </div>
+    <div class="pin" style="left:85%; top:62%" onclick="openModal(4)" data-id="4">
+      <div class="pin-label">Obsidian Cove</div>
+      <div class="pin-dot"></div>
+      <div class="pin-stem"></div>
+    </div>
+    <div class="pin" style="left:15%; top:72%" onclick="openModal(5)" data-id="5">
+      <div class="pin-label">Lost Orchard</div>
+      <div class="pin-dot"></div>
+      <div class="pin-stem"></div>
+    </div>
+  </div>
+
+  <!-- Spot Cards -->
+  <div class="spot-panel" id="spotPanel">
+
+    <div class="spot-card" id="card-0" onclick="openModal(0)">
+      <div class="card-thumb thumb-1">
+        <div class="thumb-scene">🏔️</div>
+        <div class="card-badge">Natural</div>
+        <div class="card-crowd">🧍 Low crowd</div>
+      </div>
+      <div class="card-body">
+        <p class="card-region">Central Highlands · 2h drive</p>
+        <h3 class="card-name">Monk's Gorge</h3>
+        <p class="card-desc">A narrow limestone canyon accessible only through a shepherd's gate. The acoustics at the bottom create an eerie echo effect at sunrise.</p>
+        <div class="insider-block">
+          <p class="insider-label">🔑 What most sites miss</p>
+          <p class="insider-text">The gate is left unlocked only May–Sep. There's no signage — look for a rusted iron cross nailed to a pine tree 80m past the roadside shrine.</p>
+        </div>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">⏱</span> 3h hike</span>
+          <span class="meta-item"><span class="meta-icon">🌄</span> Best at dawn</span>
+          <span class="meta-item"><span class="meta-icon">💰</span> Free</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="spot-card" id="card-1" onclick="openModal(1)">
+      <div class="card-thumb thumb-2">
+        <div class="thumb-scene">🏞️</div>
+        <div class="card-badge">Scenic</div>
+        <div class="card-crowd">🧍🧍 Medium crowd</div>
+      </div>
+      <div class="card-body">
+        <p class="card-region">Northern Lakes · 3h drive</p>
+        <h3 class="card-name">Mirror Lake</h3>
+        <p class="card-desc">A glacial lake so still it perfectly mirrors the surrounding pines. Completely undeveloped, no infrastructure, just the water and the treeline.</p>
+        <div class="insider-block">
+          <p class="insider-label">🔑 What most sites miss</p>
+          <p class="insider-text">The reflection is only perfect between 6–8am before mountain winds start. The official trail adds 4km — locals enter via the logging road on the eastern side.</p>
+        </div>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">⏱</span> 1.5h hike</span>
+          <span class="meta-item"><span class="meta-icon">🌅</span> Dawn only</span>
+          <span class="meta-item"><span class="meta-icon">💰</span> Free</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="spot-card" id="card-2" onclick="openModal(2)">
+      <div class="card-thumb thumb-3">
+        <div class="thumb-scene">🏜️</div>
+        <div class="card-badge">Geological</div>
+        <div class="card-crowd">🧍 Low crowd</div>
+      </div>
+      <div class="card-body">
+        <p class="card-region">Southern Basin · 4h drive</p>
+        <h3 class="card-name">The Salt Flats</h3>
+        <p class="card-desc">A dried prehistoric seabed. The ground is a cracked mosaic of white and ochre crystals that crunches underfoot. At dusk, the whole surface turns copper.</p>
+        <div class="insider-block">
+          <p class="insider-label">🔑 What most sites miss</p>
+          <p class="insider-text">After rain, a thin layer of water creates a mirror effect that rivals Bolivia's Salar. Check rain forecasts 24h ahead and go within 6h of rain stopping.</p>
+        </div>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">⏱</span> 2h walk</span>
+          <span class="meta-item"><span class="meta-icon">🌅</span> Dusk best</span>
+          <span class="meta-item"><span class="meta-icon">💰</span> Free</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="spot-card" id="card-3" onclick="openModal(3)">
+      <div class="card-thumb thumb-4">
+        <div class="thumb-scene">⛰️</div>
+        <div class="card-badge">Cultural</div>
+        <div class="card-crowd">🧍 Rare visits</div>
+      </div>
+      <div class="card-body">
+        <p class="card-region">Eastern Ridge · 5h drive</p>
+        <h3 class="card-name">Shepherd's Pass</h3>
+        <p class="card-desc">A high-altitude transhumance route still used seasonally by local herders. Stone huts from the 1800s dot the ridge. Views extend three countries.</p>
+        <div class="insider-block">
+          <p class="insider-label">🔑 What most sites miss</p>
+          <p class="insider-text">Herding families pass through mid-June and mid-October. They're welcoming to respectful visitors and often share coffee. Don't hike in July-Aug — herd dogs are territorial.</p>
+        </div>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">⏱</span> Full day</span>
+          <span class="meta-item"><span class="meta-icon">🌡</span> Jun / Oct</span>
+          <span class="meta-item"><span class="meta-icon">💰</span> Free</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="spot-card" id="card-4" onclick="openModal(4)">
+      <div class="card-thumb thumb-5">
+        <div class="thumb-scene">🏖️</div>
+        <div class="card-badge">Coastal</div>
+        <div class="card-crowd">🧍 Low crowd</div>
+      </div>
+      <div class="card-body">
+        <p class="card-region">Western Coast · 2.5h drive</p>
+        <h3 class="card-name">Obsidian Cove</h3>
+        <p class="card-desc">A small volcanic beach with black sand and sea stacks. Accessible only at low tide via a 15-minute coastal scramble. No road access — it stays empty.</p>
+        <div class="insider-block">
+          <p class="insider-label">🔑 What most sites miss</p>
+          <p class="insider-text">There's a freshwater spring in the cliff face at the northern end — crucial for summer visits. Tide schedule is mandatory: the scramble floods to chest-height at high tide.</p>
+        </div>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">⏱</span> 30min scramble</span>
+          <span class="meta-item"><span class="meta-icon">🌊</span> Low tide only</span>
+          <span class="meta-item"><span class="meta-icon">💰</span> Free</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="spot-card" id="card-5" onclick="openModal(5)">
+      <div class="card-thumb thumb-6">
+        <div class="thumb-scene">🍎</div>
+        <div class="card-badge">Historic</div>
+        <div class="card-crowd">🧍 Almost none</div>
+      </div>
+      <div class="card-body">
+        <p class="card-region">Valley Floor · 1.5h drive</p>
+        <h3 class="card-name">Lost Orchard</h3>
+        <p class="card-desc">An abandoned 19th-century monastery orchard with 300+ heirloom fruit varieties. In late summer, the trees are heavy with fruit nobody picks anymore.</p>
+        <div class="insider-block">
+          <p class="insider-label">🔑 What most sites miss</p>
+          <p class="insider-text">The property technically belongs to a municipal archive office. The caretaker (an elderly man named Gëzim) gives informal tours if you bring coffee and arrive before 9am.</p>
+        </div>
+        <div class="card-meta">
+          <span class="meta-item"><span class="meta-icon">⏱</span> 2h wander</span>
+          <span class="meta-item"><span class="meta-icon">🍂</span> Aug–Sep</span>
+          <span class="meta-item"><span class="meta-icon">💰</span> Free</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── CATEGORIES ── -->
+<section class="cat-section">
+  <div>
+    <p class="section-label">Browse by type</p>
+    <h2 class="section-title">What are you<br>looking for?</h2>
+  </div>
+  <div class="cat-grid">
+    <div class="cat-tile active" onclick="toggleCat(this)">
+      <div class="cat-icon">🗺️</div>
+      <div class="cat-name">All Spots</div>
+      <div class="cat-count">142 locations</div>
+    </div>
+    <div class="cat-tile" onclick="toggleCat(this)">
+      <div class="cat-icon">🏔️</div>
+      <div class="cat-name">Natural</div>
+      <div class="cat-count">54 locations</div>
+    </div>
+    <div class="cat-tile" onclick="toggleCat(this)">
+      <div class="cat-icon">🏛️</div>
+      <div class="cat-name">Historical</div>
+      <div class="cat-count">28 locations</div>
+    </div>
+    <div class="cat-tile" onclick="toggleCat(this)">
+      <div class="cat-icon">🍽️</div>
+      <div class="cat-name">Local Food</div>
+      <div class="cat-count">33 locations</div>
+    </div>
+    <div class="cat-tile" onclick="toggleCat(this)">
+      <div class="cat-icon">🌊</div>
+      <div class="cat-name">Coastal</div>
+      <div class="cat-count">19 locations</div>
+    </div>
+    <div class="cat-tile" onclick="toggleCat(this)">
+      <div class="cat-icon">🏙️</div>
+      <div class="cat-name">Urban Secrets</div>
+      <div class="cat-count">8 locations</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how-section">
+  <div style="max-width:1100px; margin:0 auto;">
+    <p class="section-label" style="color:var(--rust)">The difference</p>
+    <h2 class="section-title" style="color:var(--paper); font-family:'Playfair Display',serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:400;">What OffPath does<br>that other sites don't</h2>
+    <div class="how-grid">
+      <div class="how-text">
+        <div class="step-list">
+          <div class="step">
+            <div class="step-num">01</div>
+            <div class="step-content">
+              <p class="step-title">Local insider knowledge, not aggregated reviews</p>
+              <p class="step-desc">Every spot is submitted and verified by someone who lives within 2 hours. Not a tourist who visited once, not an algorithm scraping photos.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">02</div>
+            <div class="step-content">
+              <p class="step-title">The pre-visit briefing other sites skip</p>
+              <p class="step-desc">Each guide includes critical access information — exact directions, seasonal restrictions, local customs, and safety notes — written to actually get you there.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">03</div>
+            <div class="step-content">
+              <p class="step-title">Crowd context, not just star ratings</p>
+              <p class="step-desc">We tell you <em>when</em> a place is empty, not just that it's beautiful. That's the difference between an experience and a queue.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">04</div>
+            <div class="step-content">
+              <p class="step-title">No ad pressure, no sponsored placement</p>
+              <p class="step-desc">Nothing on this map is here because someone paid to be on it. The only criterion is that a local thought you should know about it.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="how-visual">
+        <div class="mini-map-pins"></div>
+        <div class="floating-card fc-1">
+          <div class="fc-name">Shepherd's Pass</div>
+          <div class="fc-tag">Cultural · 5h drive</div>
+          <div class="fc-bar"></div>
+        </div>
+        <div class="floating-card fc-2">
+          <div class="fc-name">Mirror Lake</div>
+          <div class="fc-tag">Scenic · 3h drive</div>
+          <div class="fc-bar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">OffPath</div>
+  <div class="footer-links">
+    <a href="#">About</a>
+    <a href="#">Contribute</a>
+    <a href="#">Guidelines</a>
+    <a href="#">Privacy</a>
+  </div>
+  <p class="footer-copy">© 2026 OffPath. Made for curious travelers, by locals.</p>
+</footer>
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal" id="modal">
+    <div class="modal-hero" id="modalHero">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-badge" id="modalBadge">Natural</div>
+    </div>
+    <div class="modal-body">
+      <h2 class="modal-name" id="modalName">—</h2>
+      <p class="modal-region" id="modalRegion">—</p>
+      <p class="modal-desc" id="modalDesc">—</p>
+      <div class="modal-insider">
+        <p class="modal-insider-label">🔑 What most travel sites miss</p>
+        <p class="modal-insider-text" id="modalInsider">—</p>
+      </div>
+      <div class="modal-tips">
+        <p class="modal-tips-title">Field notes</p>
+        <div id="modalTips"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary">Get Directions</button>
+        <button class="btn-ghost" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const spots = [
+  {
+    badge: "Natural", thumbClass: "thumb-1", icon: "🏔️",
+    name: "Monk's Gorge",
+    region: "Central Highlands · 43.7°N, 20.1°E",
+    desc: "A narrow limestone canyon accessible only through an unmarked shepherd's gate. The walls close to just 4 meters at the narrowest point. At sunrise, light filters in for only 20 minutes — the acoustic echo during that window is unlike anything else. No trail signs exist. The path is maintained only by foot traffic.",
+    insider: "The gate is left unlocked only May–September. There is zero signage anywhere on the route. The gate is 80m past a roadside Orthodox shrine — look for a rusted iron cross nailed to a pine tree. If the gate is padlocked, the gorge is genuinely inaccessible.",
+    tips: [
+      {icon:"⏰", text:"Arrive at the gate before 5:30am for the acoustic sunrise window. By 8am the gorge fills with ordinary hikers."},
+      {icon:"🥾", text:"Trail shoes minimum. The gorge floor is wet limestone, slippery year-round."},
+      {icon:"🚗", text:"Park at the unmarked gravel pullout exactly 2.3km past the village of Rudnik. No other parking exists."},
+    ]
+  },
+  {
+    badge: "Scenic", thumbClass: "thumb-2", icon: "🏞️",
+    name: "Mirror Lake",
+    region: "Northern Lakes · 45.2°N, 17.8°E",
+    desc: "A glacial cirque lake at 1,840m. The surface is perfectly still on windless mornings, doubling the surrounding spruce forest in an unblemished reflection. There is no development — no jetty, no signage, no facility. You arrive and find only water, trees, and silence.",
+    insider: "The reflection effect disappears after 8am when mountain thermal winds begin. The official signed trail adds 4 unnecessary kilometers. Locals enter via the logging road on the eastern face of the ridge — it cuts hiking time to 40 minutes from 2h.",
+    tips: [
+      {icon:"🌅", text:"6–8am is the only window. Arriving later means missing the reflection and meeting the day-hikers."},
+      {icon:"🌧️", text:"After rain the trail is slick mud. Wait one day after any precipitation."},
+      {icon:"📍", text:"Logging road entry: turn right 1.1km before the official trailhead parking, past the timber yard gate (usually open)."},
+    ]
+  },
+  {
+    badge: "Geological", thumbClass: "thumb-3", icon: "🏜️",
+    name: "The Salt Flats",
+    region: "Southern Basin · 41.3°N, 21.5°E",
+    desc: "A dried Miocene-era seabed covering approximately 8 square kilometers. The ground is a mosaic of salt crystals in white, ochre, and pale violet. At dusk the entire surface shifts to copper. After rainfall, a thin reflective film of water transforms it into a mirror landscape. Local farmers occasionally graze animals on the mineral-rich edges.",
+    insider: "The post-rain mirror effect rivals Bolivia's Salar de Uyuni and is almost unknown outside the region. You need 6–30mm of rain in the 24h prior, then arrive within 6 hours of rain stopping before the surface dries out. Check a local weather station — national forecasts don't have the resolution.",
+    tips: [
+      {icon:"🌧️", text:"Target the 6h window after 10–30mm of rain. Too little rain: no film. Too much: surface floods and loses the effect."},
+      {icon:"👟", text:"Waterproof shoes mandatory. Salt water is corrosive — don't wear good gear."},
+      {icon:"🧴", text:"Sun reflection intensity is extreme. Sunscreen, eye protection, and 2L of water minimum."},
+    ]
+  },
+  {
+    badge: "Cultural", thumbClass: "thumb-4", icon: "⛰️",
+    name: "Shepherd's Pass",
+    region: "Eastern Ridge · 42.1°N, 22.8°E",
+    desc: "A high-altitude ridge route at 2,100m used continuously for transhumance since at least the 15th century. Stone huts — kulla — built without mortar in the 1800s are scattered across the plateau. On a clear day the view extends into three countries. The route is maintained by the herders themselves, not by any government body.",
+    insider: "Herding families still move flocks through here in mid-June (uphill) and mid-October (downhill). They're welcoming to respectful visitors and frequently share rakija and coffee. Mid-July to late August, herding dogs guard the flock and are hostile to strangers — avoid entirely during this period.",
+    tips: [
+      {icon:"🗓️", text:"Visit in the third week of June or the second week of October to meet the herding families in transit."},
+      {icon:"🐕", text:"July–August is genuinely dangerous due to livestock guardian dogs. No exceptions — skip the pass entirely."},
+      {icon:"☁️", text:"Weather changes in 30 minutes at this altitude. Bring rain layer, extra food, headlamp."},
+    ]
+  },
+  {
+    badge: "Coastal", thumbClass: "thumb-5", icon: "🏖️",
+    name: "Obsidian Cove",
+    region: "Western Coast · 40.8°N, 19.4°E",
+    desc: "A small volcanic beach of black basalt sand surrounded by sea stacks. Accessible only by a 15-minute coastal scramble at low tide. No road within 3km. The combination of isolation and volcanic geology keeps it empty. The water is extraordinarily clear over dark sand — visibility to 12m on calm days.",
+    insider: "A freshwater spring emerges from the cliff face at the northern end — critical in summer heat. More importantly: the scramble path floods to chest height at high tide, trapping you. Download the tide app before you go and plan your exit window carefully. Multiple people have had to be rescued here.",
+    tips: [
+      {icon:"🌊", text:"Enter only in the 2h window centered on low tide. Build in buffer time — don't be the person who misjudges."},
+      {icon:"💧", text:"Freshwater spring at the northern cliff face: drinkable, cold, reliable. Useful for rinsing salt and as emergency supply."},
+      {icon:"🧗", text:"The scramble path is loose volcanic rock. Closed-toe shoes with grip, no sandals."},
+    ]
+  },
+  {
+    badge: "Historic", thumbClass: "thumb-6", icon: "🍎",
+    name: "Lost Orchard",
+    region: "Valley Floor · 41.1°N, 20.1°E",
+    desc: "An abandoned monastery orchard established in the late 1800s. Over 300 documented heirloom fruit varieties grow here — quince, medlar, mulberry, walnut, and apple cultivars with no modern commercial equivalent. The monastery dissolved in the 1950s. The trees are unpruned, wild-shaped, enormous. In late summer the air smells of fermented fruit.",
+    insider: "The property is owned by a municipal archive office that does nothing with it. An elderly caretaker named Gëzim lives in a small house at the entrance and has managed the orchard informally for 40 years. He gives informal tours if approached respectfully — bring two coffees from the roadside bar 3km back. Don't come after 10am; he leaves by then.",
+    tips: [
+      {icon:"☕", text:"Bring coffee for Gëzim from the roadside bar 3km before the orchard (the one with the blue awning). This is the key to an actual tour."},
+      {icon:"🍑", text:"August–September: peak fruit. Some varieties have no name — Gëzim refers to them by color and family history."},
+      {icon:"📷", text:"Ask before photographing the property. Gëzim is private about the land and its history."},
+    ]
+  }
+];
+
+function openModal(id) {
+  const s = spots[id];
+  document.getElementById('modalHero').className = 'modal-hero ' + s.thumbClass;
+  document.getElementById('modalHero').style.display = 'flex';
+  document.getElementById('modalBadge').textContent = s.badge;
+
+  // Add scene icon overlay
+  let scene = document.querySelector('#modalHero .thumb-scene');
+  if (!scene) {
+    scene = document.createElement('div');
+    scene.className = 'thumb-scene';
+    document.getElementById('modalHero').insertBefore(scene, document.getElementById('modalHero').firstChild);
+  }
+  scene.textContent = s.icon;
+
+  document.getElementById('modalName').textContent = s.name;
+  document.getElementById('modalRegion').textContent = s.region;
+  document.getElementById('modalDesc').textContent = s.desc;
+  document.getElementById('modalInsider').textContent = s.insider;
+
+  const tipsEl = document.getElementById('modalTips');
+  tipsEl.innerHTML = s.tips.map(t =>
+    `<div class="tip-item"><span class="tip-icon">${t.icon}</span><span>${t.text}</span></div>`
+  ).join('');
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeModalOnBg(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function toggleCat(el) {
+  document.querySelectorAll('.cat-tile').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Keyboard close
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
